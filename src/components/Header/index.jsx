@@ -22,6 +22,9 @@ const Header = createReactClass({
 							<Link to="/team">Team board</Link>
 						</NavItem>
 						<NavItem>
+							<Link to="/team-time">Time board</Link>
+						</NavItem>
+						<NavItem>
 							<Link to="/leaders">Leaders board</Link>
 						</NavItem>
 						<NavItem>

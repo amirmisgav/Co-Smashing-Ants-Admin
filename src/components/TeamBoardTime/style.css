@@ -1,0 +1,12 @@
+.team {
+    padding-top: 10px;
+}
+
+.team label {
+    color: red;
+    font-size: 20px;
+}
+
+.team .recharts-wrapper {
+    margin: 0 auto;
+}

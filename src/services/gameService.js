@@ -1,11 +1,12 @@
 import axios from 'axios';
 
 class GameService {
-	serverUrl = localStorage.getItem('serverUrl') || '';
+	serverUrl = localStorage.getItem('serverUrl') || 'http://ants.fuze.tikal.io:8080';
 
-	setServer(url) {
-		this.serverUrl = url;
-		localStorage.setItem('serverUrl', url);
+	setServer(url = 'http://ants.fuze.tikal.io:8080') {
+		console.log(url.substr(0, url.length - 1))
+		this.serverUrl = url[url.length - 1] === '/' ? url.substr(0, url.length - 1) : url;
+		localStorage.setItem('serverUrl', this.serverUrl);
 	}
 
 	getServer() {

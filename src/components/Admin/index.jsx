@@ -38,7 +38,7 @@ class Admin extends Component {
 			speciesOpen: false,
 			selectedSpecie: {},
 			name: '',
-			url: '',
+			url: GameService.getServer(),
 			isPlaying: false,
 			isPaused: false,
 			canCreated: true,
@@ -78,12 +78,12 @@ class Admin extends Component {
 		this.setState({urlModal: !this.state.urlModal});
 	}
 
-	updateServerUrl() {
-		if (this.state.url.length > 0) {
-			GameService.setServer(this.state.url);
-		} else {
-			this.setState({url: GameService.getServer()});
-		}
+	updateServerUrl(url = this.state.url) {
+		// if (this.state.url.length > 0) {
+		GameService.setServer(url);
+		// } else {
+		this.setState({url: GameService.getServer()});
+		// }
 	}
 
 	updateStatus() {
@@ -206,6 +206,9 @@ class Admin extends Component {
 									<Input type="text" name="url" id="url" value={this.state.url} onChange={this.handleChange.bind(this)}/>
 									<Button onClick={this.updateServerUrl.bind(this)} title="Updated server url">
 										<i className="fa fa-save" aria-hidden="true"/>
+									</Button>
+									<Button onClick={this.updateServerUrl.bind(this, '')} title="Delete server url">
+										<i className="fa fa-remove" aria-hidden="true"/>
 									</Button>
 								</FormGroup>
 							</Form>

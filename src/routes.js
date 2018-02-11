@@ -3,6 +3,7 @@ import { Router, Route, IndexRoute } from 'react-router';
 
 import App from './App';
 import TeamBoard from './components/TeamBoard';
+import TeamBoardTime from './components/TeamBoardTime';
 import LeadersBoard from './components/LeadersBoard';
 import Admin from './components/Admin';
 
@@ -13,6 +14,7 @@ const Routes = (props) => (
 
 			<Route path="team" component={TeamBoard} />
 			<Route path="leaders" component={LeadersBoard} />
+			<Route path="team-time" component={TeamBoardTime} />
 			<Route path="admin" component={Admin} />
 		</Route>
 	</Router>
