@@ -9,6 +9,12 @@ import GameService from '../../services/gameService';
 
 import './style.css';
 
+const colors = {
+	'Red_Fire': 'red',
+	'Lasius': 'green',
+	'Mirmica': 'black'
+}
+
 class TeamBoardTime extends Component {
 
 	timeout = null;
@@ -25,54 +31,71 @@ class TeamBoardTime extends Component {
 
 	componentDidMount() {
 		if (!GameService.validateServer()) browserHistory.push('/admin');
-		this.updateScores();
+		this.addInterval();
 	}
 
 	componentWillUnmount() {
-		clearTimeout(this.timeout);
+		clearInterval(this.timeout);
 	}
 
-	updateScores() {
+	requestData = () => GameService.teams().then(res => {
+		const resData = res.data.sort((a,b) => a.id - b.id) || []
+		const teamData = resData
+		.reduce((acc, curr, index) => {
+			acc[`team_${index}`] = curr.score
+			return acc
+		}, {})
+		const data = this.state.data
+		data.shift()
+		data.push(Object.assign({
+			time: this.count++
+		}, teamData))
+		const teamsNames = resData
+			.map(item => ({
+				color: colors[item.antSpecies.name],
+				name: item.name
+			}))
+		this.setState({
+			teams: resData,
+			data,
+			teamsNames
+		});
+	});
+
+	removeInterval() {
+		this.requestData()
+		clearInterval(this.timeout)
+		this.timeout = null
+	}
+
+	addInterval() {
 		const interval = () =>
-			GameService.teams().then(res => {
-				const resData = res.data || []
-				const teamData = resData
-				.reduce((acc, curr, index) => {
-					acc[`team_${index}`] = curr.score
-					return acc
-				}, {})
-				const data = this.state.data
-				data.shift()
-				data.push(Object.assign({
-					time: this.count++
-				}, teamData))
-				this.setState({
-					teams: resData,
-					data,
-					teamsNames: resData.map(item => item.name)
-				});
-			});
+			this.props.pause
+			? this.removeInterval()
+			: this.requestData()
 		this.timeout = setInterval(interval, 1000)
 	}
 
 	render() {
 		const {teamsNames, data} = this.state
-		console.log(data)
-		console.log(teamsNames)
-		// if (!data || !teamsNames || teamsNames.length === 0 || data.length === 0) return <div>Loading</div>
+		const {xSize = 120, minimal = false, pause = false} = this.props
+		if (!this.timeout && !pause) this.addInterval()
+		// console.log(data)
+		// console.log(teamsNames)
+		if (!data || !teamsNames || teamsNames.length === 0 || data.length === 0) return <div>Loading</div>
 		return (
 			<div className="board team">
 				<Container>
-					<Label>TimeBoard</Label>
-					<ComposedChart width={600} height={300} data={data}>
+					{minimal ? null :<Label>TimeBoard</Label>}
+					<ComposedChart width={800} height={500} data={data} margin={{}}>
 						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis label="Time" dataKey="time" type="number"/>
-						<YAxis label="Score"/>
+						<XAxis dataKey="time" type="number" tickCount={10} domain={[0, xSize]} />
+						<YAxis />
 						<Tooltip />
 						<Legend />
-						<Line type="monotone" dataKey="team_0" name={teamsNames[0]} stroke="blue" activeDot={{r: 2}} />
-						<Line type="monotone" dataKey="team_1" name={teamsNames[1]} stroke="red" activeDot={{r: 2}} />
-						<Line type="monotone" dataKey="team_2" name={teamsNames[2]} stroke="green" activeDot={{r: 2}} />
+						<Line type="monotone" dataKey="team_0" name={teamsNames[0].name} stroke={teamsNames[0].color} activeDot={{r: 2}} />
+						<Line type="monotone" dataKey="team_1" name={teamsNames[1].name} stroke={teamsNames[1].color} activeDot={{r: 2}} />
+						<Line type="monotone" dataKey="team_2" name={teamsNames[2].name} stroke={teamsNames[2].color} activeDot={{r: 2}} />
 						{/* <Line type="monotone" dataKey="team_3" name={teamsNames[3]} stroke="yellow" activeDot={{r: 2}} /> */}
 					</ComposedChart>
 				</Container>

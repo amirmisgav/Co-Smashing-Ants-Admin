@@ -4,10 +4,16 @@ import {
 	Label
 } from 'reactstrap';
 import { browserHistory } from 'react-router';
-import { BarChart, Bar, XAxis, Tooltip, ReferenceLine} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine} from 'recharts';
 import GameService from '../../services/gameService';
 
 import './style.css';
+
+const colors = {
+	'Red_Fire': 'red',
+	'Lasius': 'green',
+	'Mirmica': 'black'
+}
 
 class TeamBoard extends Component {
 
@@ -17,38 +23,76 @@ class TeamBoard extends Component {
 		super(props);
 
 		this.state = {
-			teams: []
+			teams: [],
+			teamsNames: []
 		};
 	}
 
 	componentDidMount() {
 		if (!GameService.validateServer()) browserHistory.push('/admin');
-		this.updateScores();
+		this.addInterval();
 	}
 
 	componentWillUnmount() {
-		clearTimeout(this.timeout);
+		clearInterval(this.timeout);
 	}
 
-	updateScores() {
-		GameService.teams().then(res => {
-			this.setState({
-				teams: res.data
-			});
+	requestData = () => GameService.teams().then(res => {
+		const resData = res.data.sort((a,b) => a.id - b.id) || []
+		const teamData = resData
+		.reduce((acc, curr, index) => {
+			acc.push({
+				[`team_${index}`]: curr.score,
+				name: curr.name
+			})
+			return acc
+		}, [])
+		// const data = this.state.data
+		// data.shift()
+		// data.push(Object.assign({
+		// 	time: this.count++
+		// }, teamData))
+		const teamsNames = resData
+			.map(item => ({
+				color: colors[item.antSpecies.name],
+				name: item.antSpecies.name
+			}))
+		this.setState({
+			teams: resData,
+			data: teamData,
+			teamsNames
 		});
-		this.timeout = setTimeout(this.updateScores.bind(this), 1000);
+	});
+
+	removeInterval() {
+		this.requestData()
+		clearInterval(this.timeout)
+		this.timeout = null
+	}
+
+	addInterval() {
+		const interval = () =>
+			this.props.pause
+			? this.removeInterval()
+			: this.requestData()
+		this.timeout = setInterval(interval, 1000)
 	}
 
 	render() {
+		const {teamsNames, data} = this.state
+		const {minimal = false, pause = false} = this.props
+		if (!data || !teamsNames || teamsNames.length === 0 || data.length === 0) return <div>Loading</div>
+		// console.log(this.state)
+		if (!this.timeout && !pause) this.addInterval()
 		return (
 			<div className="board team">
 				<Container>
-					<Label>TeamBoard</Label>
+				{minimal ? null : <Label>TeamBoard</Label>}
 
 					<BarChart
-						width={600}
-						height={300}
-						data={this.state.teams}
+						width={300}
+						height={150}
+						data={data}
 						barSize={20}
 					>
 						<pattern
@@ -67,7 +111,15 @@ class TeamBoard extends Component {
 						<ReferenceLine y={0} />
 						<Tooltip />
 						<XAxis dataKey="name" axisLine={false} tickLine={false}/>
-						<Bar dataKey="score" fill="#f00" label={{ fontSize: 18 }} shape={<CandyBar />} />
+						<YAxis />
+						{/* {
+							teamsNames
+								.map((team, i) => <Bar type="monotone" dataKey={`team_${i}`} name={teamsNames[0].name} fill={teamsNames[0].color} />)
+						} */}
+						{/* <Bar dataKey="score" fill="#f00" label={{ fontSize: 18 }} shape={<CandyBar />} /> */}
+						<Bar type="monotone" dataKey="team_0" name={teamsNames[0].name} fill={teamsNames[0].color} />
+						<Bar type="monotone" dataKey="team_1" name={teamsNames[1].name} fill={teamsNames[1].color} />
+						<Bar type="monotone" dataKey="team_2" name={teamsNames[2].name} fill={teamsNames[2].color} />
 					</BarChart>
 				</Container>
 			</div>

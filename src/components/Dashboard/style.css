@@ -1,0 +1,9 @@
+#dashboard .board {
+  background: white;
+  padding: 1em;
+  /* background-size: 100% auto; */
+}
+
+#dashboard .container {
+    width:inherit
+}

@@ -19,6 +19,7 @@ import {
 	ModalFooter
 } from 'reactstrap';
 import GameService from '../../services/gameService';
+import {browserHistory} from 'react-router'
 
 import './style.css';
 
@@ -147,6 +148,7 @@ class Admin extends Component {
 			GameService.stop();
 		} else {
 			GameService.start(this.state.speed, this.state.population);
+			browserHistory.push('/dashboard')
 		}
 	}
 

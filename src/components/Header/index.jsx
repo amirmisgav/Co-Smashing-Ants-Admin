@@ -19,6 +19,9 @@ const Header = createReactClass({
 				<Collapse navbar>
 					<Nav className="ml-auto" tabs>
 						<NavItem>
+							<Link to="/dashboard">Dashboard</Link>
+						</NavItem>
+						{/* <NavItem>
 							<Link to="/team">Team board</Link>
 						</NavItem>
 						<NavItem>
@@ -26,7 +29,7 @@ const Header = createReactClass({
 						</NavItem>
 						<NavItem>
 							<Link to="/leaders">Leaders board</Link>
-						</NavItem>
+						</NavItem> */}
 						<NavItem>
 							<Link to="/admin">Admin</Link>
 						</NavItem>
