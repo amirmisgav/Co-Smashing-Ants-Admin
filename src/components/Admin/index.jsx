@@ -23,6 +23,14 @@ import {browserHistory} from 'react-router'
 
 import './style.css';
 
+const speedArray = [0.2, 0.5, 1, 2, 5]
+
+const styles = {
+	label: {
+		width: '13rem'
+	}
+}
+
 class Admin extends Component {
 
 	timeout = null;
@@ -69,6 +77,12 @@ class Admin extends Component {
 		});
 
 		this.updateStatus();
+		new window.Slider('#speed-slider', {})
+			.on('slide', i => this.setState({speed: speedArray[i]}))
+		new window.Slider('#time-slider', {})
+			.on('slide', value => this.setState({time: value}))
+		new window.Slider('#population-slider', {})
+			.on('slide', value => this.setState({population: value}))
 	}
 
 	componentWillUnmount() {
@@ -176,6 +190,10 @@ class Admin extends Component {
 		GameService.speed(this.state.speed);
 	}
 
+	renderDataValue(value) {
+		return <span style={{color: 'blue', marginLeft: '0.5rem', marginRight: '0.5rem'}}>{value}</span>
+	}
+
 	render() {
 		return (
 			<div className="board admin">
@@ -221,9 +239,18 @@ class Admin extends Component {
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label for="time">Game time</Label>
-									<Input type="number" min="0.1" step="0.1" name="time" id="time" className="time" defaultValue={this.state.time} onChange={this.handleChange.bind(this)}/>
-									<Label>Minutes</Label>
+									<Label style={styles.label} for="time">Game time {this.renderDataValue(this.state.time)} Minutes</Label>
+									<div style={{marginLeft: '1.5rem'}}>
+										<Input
+											type="text"
+											id="time-slider"
+											data-slider-id="speed-slider-inner"
+											data-slider-min="0"
+											data-slider-max="2"
+											data-slider-step="0.2"
+											data-slider-value={this.state.time}
+											/>
+									</div>
 								</FormGroup>
 							</Form>
 						</Col>
@@ -233,8 +260,23 @@ class Admin extends Component {
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label for="speed">Game speed</Label>
-									<Input type="number" min="0.1" step="0.1" name="speed" id="speed" className="speed" defaultValue={this.state.speed} onChange={this.handleChange.bind(this)}/>
+									<Label style={styles.label} for="speed-slider">Game speed X {this.renderDataValue(this.state.speed)}</Label>
+									<div style={{marginLeft: '1.5rem'}}>
+										<Input
+											type="text"
+											id="speed-slider"
+											data-slider-id="speed-slider-inner"
+											// data-provide="slider"
+											// data-slider-ticks="[1, 2, 3, 4, 5]"
+											// data-slider-ticks-labels='["0.2X", "0.5X", "1", "2X", "5X"]'
+											// ticks_positions="[1, 2, 3, 4, 5]"
+											data-slider-min="0"
+											data-slider-max={speedArray.length - 1}
+											data-slider-step="1"
+											data-slider-value={speedArray.indexOf(this.state.speed)}
+											// data-slider-handle="triangle"
+											/>
+										</div>
 									{this.state.isPlaying && <Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
 										<i className="fa fa-clock-o" aria-hidden="true"/>
 									</Button>}
@@ -247,8 +289,19 @@ class Admin extends Component {
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label for="population">Population</Label>
-									<Input type="number" min="0" max="10" name="population" id="population" className="population" defaultValue={this.state.population} onChange={this.handleChange.bind(this)}/>
+									<Label style={styles.label} for="population">Population - {this.renderDataValue(this.state.population)}</Label>
+									{/* <Input type="number" min="0" max="10" name="population" id="population" className="population" defaultValue={this.state.population} onChange={this.handleChange.bind(this)}/> */}
+									<div style={{marginLeft: '1.5rem'}}>
+										<Input
+											type="text"
+											id="population-slider"
+											data-slider-id="speed-slider-inner"
+											data-slider-min="1"
+											data-slider-max="9"
+											data-slider-step="1"
+											data-slider-value={this.state.population}
+											/>
+									</div>
 								</FormGroup>
 							</Form>
 						</Col>

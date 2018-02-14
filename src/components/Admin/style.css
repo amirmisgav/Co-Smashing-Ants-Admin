@@ -55,6 +55,7 @@
 
 .admin .form-group label {
     padding-right: 10px;
+    justify-content: left;
 }
 
 .admin .server-url .form-group button {
@@ -137,4 +138,17 @@
     height: 40px;
     padding: 0;
     cursor: pointer;
+}
+
+#speed-slider {
+    width: 300px;
+    height: 20px;
+}
+
+#speed-slider-inner .slider-handle {
+    background: red;
+}
+
+#speed-slider-inner .slider-selection {
+    background: inherit;
 }

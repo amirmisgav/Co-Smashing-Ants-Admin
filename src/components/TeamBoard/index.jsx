@@ -72,9 +72,10 @@ class TeamBoard extends Component {
 
 	addInterval() {
 		const interval = () =>
-			this.props.pause
-			? this.removeInterval()
-			: this.requestData()
+			// this.props.pause
+			// ? this.removeInterval()
+			// : 
+			this.requestData()
 		this.timeout = setInterval(interval, 1000)
 	}
 
@@ -94,7 +95,7 @@ class TeamBoard extends Component {
 						height={150}
 						data={data}
 						barSize={20}
-					>
+						margin={{ top: 10, right: 0, left: 10, bottom: 10 }}>
 						<pattern
 							id="pattern-stripe"
 							width="8"

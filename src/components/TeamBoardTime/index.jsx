@@ -87,7 +87,8 @@ class TeamBoardTime extends Component {
 			<div className="board team">
 				<Container>
 					{minimal ? null :<Label>TimeBoard</Label>}
-					<ComposedChart width={800} height={500} data={data} margin={{}}>
+					<ComposedChart width={800} height={500} data={data}
+						margin={{ top: 10, right: 0, left: 20, bottom: 10 }}>
 						<CartesianGrid strokeDasharray="3 3" />
 						<XAxis dataKey="time" type="number" tickCount={10} domain={[0, xSize]} />
 						<YAxis />
