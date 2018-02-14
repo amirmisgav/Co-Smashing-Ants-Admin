@@ -23,7 +23,7 @@ import {browserHistory} from 'react-router'
 
 import './style.css';
 
-const speedArray = [0.2, 0.5, 1, 2, 5]
+const speedArray = [0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5]
 
 const styles = {
 	label: {
@@ -79,10 +79,13 @@ class Admin extends Component {
 		this.updateStatus();
 		new window.Slider('#speed-slider', {})
 			.on('slide', i => this.setState({speed: speedArray[i]}))
+			.on('slideStart', i => this.setState({speed: speedArray[i]}))
 		new window.Slider('#time-slider', {})
-			.on('slide', value => this.setState({time: value}))
+			.on('slide',  value => this.setState({time: value}))
+			.on('slideStart',  value => this.setState({time: value}))
 		new window.Slider('#population-slider', {})
 			.on('slide', value => this.setState({population: value}))
+			.on('slideStart', value => this.setState({population: value}))
 	}
 
 	componentWillUnmount() {
@@ -162,7 +165,7 @@ class Admin extends Component {
 			GameService.stop();
 		} else {
 			GameService.start(this.state.speed, this.state.population);
-			browserHistory.push('/dashboard')
+			// browserHistory.push('/dashboard')
 		}
 	}
 
@@ -195,6 +198,7 @@ class Admin extends Component {
 	}
 
 	render() {
+		// console.log(this.state)
 		return (
 			<div className="board admin">
 				<Container>
@@ -235,7 +239,7 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					{!this.state.isPlaying && <Row>
+					<Row>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
@@ -245,23 +249,24 @@ class Admin extends Component {
 											type="text"
 											id="time-slider"
 											data-slider-id="speed-slider-inner"
-											data-slider-min="0"
-											data-slider-max="2"
+											data-slider-min="0.2"
+											data-slider-max="3"
 											data-slider-step="0.2"
 											data-slider-value={this.state.time}
+											data-slider-enabled={!this.state.canCreated}
 											/>
 									</div>
 								</FormGroup>
 							</Form>
 						</Col>
-					</Row>}
+					</Row>
 
 					<Row>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
 									<Label style={styles.label} for="speed-slider">Game speed X {this.renderDataValue(this.state.speed)}</Label>
-									<div style={{marginLeft: '1.5rem'}}>
+									<div style={{marginLeft: '1.5rem', marginRight: '1rem'}}>
 										<Input
 											type="text"
 											id="speed-slider"
@@ -277,7 +282,7 @@ class Admin extends Component {
 											// data-slider-handle="triangle"
 											/>
 										</div>
-									{this.state.isPlaying && <Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
+									{!this.state.canCreated && <Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
 										<i className="fa fa-clock-o" aria-hidden="true"/>
 									</Button>}
 								</FormGroup>
@@ -300,6 +305,7 @@ class Admin extends Component {
 											data-slider-max="9"
 											data-slider-step="1"
 											data-slider-value={this.state.population}
+											data-slider-enabled={!this.state.canCreated}
 											/>
 									</div>
 								</FormGroup>
