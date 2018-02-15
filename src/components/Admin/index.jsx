@@ -249,11 +249,11 @@ class Admin extends Component {
 											type="text"
 											id="time-slider"
 											data-slider-id="speed-slider-inner"
-											data-slider-min="0.2"
-											data-slider-max="3"
-											data-slider-step="0.2"
+											data-slider-min="1"
+											data-slider-max="5"
+											data-slider-step="1"
 											data-slider-value={this.state.time}
-											data-slider-enabled={!this.state.canCreated}
+											// data-slider-enabled={!this.state.canCreated}
 											/>
 									</div>
 								</FormGroup>
@@ -282,9 +282,12 @@ class Admin extends Component {
 											// data-slider-handle="triangle"
 											/>
 										</div>
-									{!this.state.canCreated && <Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
-										<i className="fa fa-clock-o" aria-hidden="true"/>
-									</Button>}
+									{
+										// !this.state.canCreated && 
+										<Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
+											<i className="fa fa-clock-o" aria-hidden="true"/>
+										</Button>
+									}
 								</FormGroup>
 							</Form>
 						</Col>
@@ -305,7 +308,7 @@ class Admin extends Component {
 											data-slider-max="9"
 											data-slider-step="1"
 											data-slider-value={this.state.population}
-											data-slider-enabled={!this.state.canCreated}
+											// data-slider-enabled={!this.state.canCreated}
 											/>
 									</div>
 								</FormGroup>
