@@ -7,6 +7,7 @@ node {
         	checkout scm
         }
         stage ('Build') {
+            sh 'npm install'
             sh 'npm run build'
         }
       	stage ('Deploy') {
