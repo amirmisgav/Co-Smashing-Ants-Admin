@@ -243,7 +243,7 @@ class Admin extends Component {
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label style={styles.label} for="time">Game-Time (minutes) {this.renderDataValue(this.state.time)} Minutes</Label>
+									<Label style={styles.label} for="time">Game-Time {this.renderDataValue(this.state.time)} Minutes</Label>
 									<div style={{marginLeft: '1.5rem'}}>
 										<Input
 											type="text"
