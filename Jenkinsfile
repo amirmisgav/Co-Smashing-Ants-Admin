@@ -12,6 +12,7 @@ node {
         }
       	stage ('Deploy') {
       	    sh "aws s3 sync build/ s3://ants-cosmashing"
+      	    sh "aws cloudfront create-invalidation --distribution-id E16OLEOBVB7FDZ --paths \"/*\""
       	}
     } catch (err) {
         currentBuild.result = 'FAILED'
