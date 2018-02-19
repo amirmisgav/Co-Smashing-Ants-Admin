@@ -6,7 +6,8 @@ import {
 } from 'reactstrap';
 import { browserHistory } from 'react-router';
 import _ from 'lodash';
-import GameService from '../../services/gameService';
+// import GameService from '../../services/gameService';
+import NewGameService from '../../services/newGameService';
 
 import './style.css';
 
@@ -23,8 +24,12 @@ class LeadersBoard extends Component {
 	}
 
 	componentDidMount() {
-		if (!GameService.validateServer()) browserHistory.push('/admin');
-		this.updateScores();
+		// if (!GameService.validateServer()) browserHistory.push('/admin');
+		this.service = NewGameService()
+			.then(service => {
+				this.service = service
+				this.updateScores();
+			}) 
 	}
 
 	componentWillUnmount() {
@@ -32,7 +37,7 @@ class LeadersBoard extends Component {
 	}
 
 	updateScores() {
-		GameService.leaders().then(res => {
+		this.service.getScores().then(res => {
 			this.setState({
 				scores: _.orderBy(res.data, ['score'], ['desc'])
 			});
@@ -59,7 +64,7 @@ class LeadersBoard extends Component {
 							this.state.scores.map((player, index) => {
 								return <tr key={index}>
 									<th scope="row">{index + 1}</th>
-									<td>{player.name}</td>
+									<td>{player.playerName}</td>
 									<td>{player.score}</td>
 								</tr>
 							})

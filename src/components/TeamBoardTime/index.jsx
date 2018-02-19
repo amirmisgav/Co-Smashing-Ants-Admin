@@ -5,7 +5,8 @@ import {
 } from 'reactstrap';
 import { browserHistory } from 'react-router';
 import { ComposedChart, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
-import GameService from '../../services/gameService';
+// import GameService from '../../services/gameService';
+import NewGameService from '../../services/newGameService';
 
 import './style.css';
 
@@ -30,7 +31,7 @@ class TeamBoardTime extends Component {
 	}
 
 	componentDidMount() {
-		if (!GameService.validateServer()) browserHistory.push('/admin');
+		// if (!GameService.validateServer()) browserHistory.push('/admin');
 		this.addInterval();
 	}
 
@@ -38,7 +39,7 @@ class TeamBoardTime extends Component {
 		clearInterval(this.timeout);
 	}
 
-	requestData = () => GameService.teams().then(res => {
+	requestData = () => this.service.getTeams().then(res => {
 		const resData = res.data.sort((a,b) => a.id - b.id) || []
 		const teamData = resData
 		.reduce((acc, curr, index) => {
@@ -52,9 +53,11 @@ class TeamBoardTime extends Component {
 		}, teamData))
 		const teamsNames = resData
 			.map(item => ({
-				color: colors[item.antSpecies.name],
-				name: item.name
+				color: colors[item.antSpeciesName],
+				name: item.antSpeciesName
 			}))
+			.concat([{color: 'white', name: 'no team'}, {color: 'white', name: 'no team'}])
+			.splice(0,3)
 		this.setState({
 			teams: resData,
 			data,
@@ -68,7 +71,16 @@ class TeamBoardTime extends Component {
 		this.timeout = null
 	}
 
+	getService() {
+		this.service = NewGameService()
+			.then(service => {
+				this.service = service
+				this.addInterval()
+			})
+	}
+
 	addInterval() {
+		if (!this.service) return this.getService()
 		const interval = () =>
 			this.props.pause
 			? this.removeInterval()

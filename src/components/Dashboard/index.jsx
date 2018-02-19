@@ -7,7 +7,7 @@ import GameService from '../../services/gameService';
 
 import './style.css';
 
-class Admin extends Component {
+class Dashboard extends Component {
 
 	timeout = null;
 
@@ -16,25 +16,6 @@ class Admin extends Component {
 	// }
 
 	componentDidMount() {
-		// if (!localStorage.getItem('serverUrl')) {
-		// 	this.toggleServerModal();
-		// }
-
-		// GameService.list().then(teams => {
-		// 	console.log('loaded teams:', teams);
-
-		// 	GameService.species().then(species => {
-		// 		console.log('loaded species:', species);
-
-		// 		this.setState({
-		// 			teams: this.state.isPlaying ? teams.data : this.state.teams,
-		// 			species: species.data,
-		// 			selectedSpecie: species.data[0],
-		// 			url: GameService.getServer()
-		// 		});
-		// 	});
-		// });
-
 		this.updateStatus();
 	}
 
@@ -85,4 +66,4 @@ class Admin extends Component {
 	}
 }
 
-export default Admin;
+export default Dashboard;
