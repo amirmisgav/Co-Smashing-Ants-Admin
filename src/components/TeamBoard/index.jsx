@@ -58,7 +58,7 @@ class TeamBoard extends Component {
 				color: colors[item.antSpeciesName],
 				name: item.antSpeciesName
 			}))
-			.concat([{color: 'white', name: 'no team'}, {color: 'white', name: 'no team'}])
+			.concat([{color: 'white', name: 'no team'}, {color: 'white', name: 'no team'}, {color: 'white', name: 'no team'}])
 			.splice(0,3)
 		
 		this.setState({
