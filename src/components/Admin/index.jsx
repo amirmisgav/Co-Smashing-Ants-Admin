@@ -60,7 +60,7 @@ class Admin extends Component {
 	componentDidMount() {
 		if (!localStorage.getItem('serverUrl')) {
 			this.toggleServerModal();
-			//return
+			return
 		} else {
 
 			Promise.all([
@@ -103,20 +103,20 @@ class Admin extends Component {
 		this.setState({urlModal: !this.state.urlModal});
 	}
 
-	updateServerUrl(url = this.state.url) {
+	updateServerUrl(url) {
+		if (!url) url = this.state.url;
 		this.setState({url: GameService.setServer(url)});
 	}
 
 	updateStatus() {
 		GameService.status()
-			.then(({data: { status }}) => {
+			.then(({data: { state: status}}) => {
 				this.setState({
 					status,
 					isPlaying: status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED',
 					isPaused: status === 'PAUSED',
 					canCreated: status === 'FINISHED' || status === 'STOPPED'
 				});
-
 			})
 			.catch(err => {
 				this.setState({status: err.message});
@@ -386,7 +386,7 @@ class Admin extends Component {
 				<Modal fade={false} backdrop="static" isOpen={this.state.urlModal} toggle={this.toggleServerModal.bind(this)} className="url-modal">
 					<ModalHeader>Server base URL</ModalHeader>
 					<ModalBody>
-						<Form onSubmit={() => { this.updateServerUrl(this.state.url); return false }}>
+						<Form onSubmit={() => { this.updateServerUrl(this.state.url || ''); return false }}>
 							<FormGroup>
 								<Label for="url">Please enter your server URL</Label>
 								<Input type="text" name="url" id="url" placeholder="Server URL" onChange={this.handleChange.bind(this)}/>
