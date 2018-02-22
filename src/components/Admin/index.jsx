@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import * as Promise from 'bluebird';
 import {
 	Container,
 	Row,
@@ -19,7 +20,7 @@ import {
 	ModalFooter
 } from 'reactstrap';
 import GameService from '../../services/gameService';
-import {browserHistory} from 'react-router'
+//import {browserHistory} from 'react-router'
 
 import './style.css';
 
@@ -47,7 +48,7 @@ class Admin extends Component {
 			speciesOpen: false,
 			selectedSpecie: {},
 			name: '',
-			url: GameService.getServer(),
+			url: GameService.getServer() || '',
 			isPlaying: false,
 			isPaused: false,
 			canCreated: true,
@@ -59,22 +60,28 @@ class Admin extends Component {
 	componentDidMount() {
 		if (!localStorage.getItem('serverUrl')) {
 			this.toggleServerModal();
-		}
+			//return
+		} else {
 
-		GameService.list().then(teams => {
-			console.log('loaded teams:', teams);
-
-			GameService.species().then(species => {
-				console.log('loaded species:', species);
+			Promise.all([
+				GameService.getServer(),
+				GameService.species(),
+				this.state.isPlaying
+				? GameService.teams()
+				: this.state.teams
+			])
+			.then((r) => r.map(r => r.data || r))
+			.then(([url, species, teams]) => {
+				console.log('loaded ', {teams, species});
 
 				this.setState({
-					teams: this.state.isPlaying ? teams.data : this.state.teams,
-					species: species.data,
-					selectedSpecie: species.data[0],
-					url: GameService.getServer()
+					url,
+					teams,
+					species,
+					selectedSpecie: species[0]
 				});
 			});
-		});
+		}
 
 		this.updateStatus();
 		new window.Slider('#speed-slider', {})
@@ -97,21 +104,17 @@ class Admin extends Component {
 	}
 
 	updateServerUrl(url = this.state.url) {
-		// if (this.state.url.length > 0) {
-		GameService.setServer(url);
-		// } else {
-		this.setState({url: GameService.getServer()});
-		// }
+		this.setState({url: GameService.setServer(url)});
 	}
 
 	updateStatus() {
 		GameService.status()
-			.then(res => {
+			.then(({data: { status }}) => {
 				this.setState({
-					isPlaying: res.data.state === 'STARTED' || res.data.state === 'PAUSED' || res.data.state === 'RESUMED',
-					isPaused: res.data.state === 'PAUSED',
-					canCreated: res.data.state === 'FINISHED' || res.data.state === 'STOPPED',
-					status: res.data.state
+					status,
+					isPlaying: status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED',
+					isPaused: status === 'PAUSED',
+					canCreated: status === 'FINISHED' || status === 'STOPPED'
 				});
 
 			})
@@ -383,7 +386,7 @@ class Admin extends Component {
 				<Modal fade={false} backdrop="static" isOpen={this.state.urlModal} toggle={this.toggleServerModal.bind(this)} className="url-modal">
 					<ModalHeader>Server base URL</ModalHeader>
 					<ModalBody>
-						<Form>
+						<Form onSubmit={() => { this.updateServerUrl(this.state.url); return false }}>
 							<FormGroup>
 								<Label for="url">Please enter your server URL</Label>
 								<Input type="text" name="url" id="url" placeholder="Server URL" onChange={this.handleChange.bind(this)}/>

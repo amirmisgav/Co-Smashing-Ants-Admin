@@ -4,9 +4,11 @@ class GameService {
 	serverUrl = localStorage.getItem('serverUrl') || 'http://ants.fuze.tikal.io:8080';
 
 	setServer(url = 'http://ants.fuze.tikal.io:8080') {
-		console.log(url.substr(0, url.length - 1))
-		this.serverUrl = url[url.length - 1] === '/' ? url.substr(0, url.length - 1) : url;
+		url = url.replace(/\/$/, '');
+		console.log('setServer', url)
+		this.serverUrl = url;
 		localStorage.setItem('serverUrl', this.serverUrl);
+		return url
 	}
 
 	getServer() {
@@ -41,7 +43,7 @@ class GameService {
 		return axios.put(this.serverUrl + '/games/speed?factor=' + factor);
 	}
 
-	list() {
+	teams() {
 		// return new Promise(resolve => {
 		// 	resolve([
 		// 			{
