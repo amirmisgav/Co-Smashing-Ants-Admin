@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+    <title>Pusher Test</title>
+    <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
+    <script>
+
+    // Enable pusher logging - don't include this in production
+    <!--Pusher.logToConsole = true;-->
+
+    var pusher = new Pusher('ee30a7dbb762fb045133', {
+      encrypted: true
+    });
+
+    var channel = pusher.subscribe('scores');
+
+    channel.bind('playerScore', function(data) {
+      <!--alert('playerScore'+data.message);-->
+      console.log(data.message);
+    });
+
+    channel.bind('teamScore', function(data) {
+      <!--alert('teamScore'+data.message);-->
+      console.log(data.message);
+    });
+  </script>
+</head>
