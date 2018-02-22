@@ -43,7 +43,7 @@ class GameService {
 		return axios.put(this.serverUrl + '/games/speed?factor=' + factor);
 	}
 
-	teams() {
+	currentTeams() {
 		// return new Promise(resolve => {
 		// 	resolve([
 		// 			{

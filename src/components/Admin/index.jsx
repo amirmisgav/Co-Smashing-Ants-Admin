@@ -67,7 +67,7 @@ class Admin extends Component {
 				GameService.getServer(),
 				GameService.species(),
 				this.state.isPlaying
-				? GameService.teams()
+				? GameService.currentTeams()
 				: this.state.teams
 			])
 			.then((r) => r.map(r => r.data || r))
