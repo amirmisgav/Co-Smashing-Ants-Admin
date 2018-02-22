@@ -3,7 +3,7 @@ import {
 	Container,
 	Label
 } from 'reactstrap';
-import { browserHistory } from 'react-router';
+//import { browserHistory } from 'react-router';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine} from 'recharts';
 // import GameService from '../../services/gameService';
 import NewGameService from '../../services/newGameService';
@@ -143,6 +143,7 @@ class TeamBoard extends Component {
 
 export default TeamBoard;
 
+// eslint-disable-next-line
 const CandyBar = (props) => {
 	const {
 		x: oX,

@@ -3,8 +3,8 @@ import {
 	Container,
 	Label
 } from 'reactstrap';
-import { browserHistory } from 'react-router';
-import { ComposedChart, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
+//import { browserHistory } from 'react-router';
+import { ComposedChart, /*LineChart, */ CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
 // import GameService from '../../services/gameService';
 import NewGameService from '../../services/newGameService';
 

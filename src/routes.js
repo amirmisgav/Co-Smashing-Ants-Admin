@@ -2,9 +2,9 @@ import React from 'react';
 import { Router, Route, IndexRoute } from 'react-router';
 
 import App from './App';
-import TeamBoard from './components/TeamBoard';
-import TeamBoardTime from './components/TeamBoardTime';
-import LeadersBoard from './components/LeadersBoard';
+//import TeamBoard from './components/TeamBoard';
+//import TeamBoardTime from './components/TeamBoardTime';
+//import LeadersBoard from './components/LeadersBoard';
 import Dashboard from './components/Dashboard';
 import Admin from './components/Admin';
 

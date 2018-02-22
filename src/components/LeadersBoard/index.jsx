@@ -4,7 +4,7 @@ import {
 	Label,
 	Table
 } from 'reactstrap';
-import { browserHistory } from 'react-router';
+//import { browserHistory } from 'react-router';
 import _ from 'lodash';
 // import GameService from '../../services/gameService';
 import NewGameService from '../../services/newGameService';

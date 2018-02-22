@@ -128,21 +128,21 @@ class Admin extends Component {
 	addTeam(e) {
 		e.preventDefault();
 
-		let teams = [...this.state.teams, {
+		this.setTeams([...this.state.teams, {
 			antSpeciesId: this.state.selectedSpecie.id,
 			name: this.state.name
-		}];
-
-		localStorage.setItem('teams', JSON.stringify(teams));
-
-		this.setState({teams: teams});
+		}])
 	}
 
 	removeTeam(index) {
-		let teams = this.state.teams;
+		const teams = this.state.teams;
 		teams.splice(index, 1);
+		this.setTeams(teams);
+	}
 
-		this.setState({teams: teams});
+	setTeams(teams) {
+		localStorage.setItem('teams', JSON.stringify(teams));
+		this.setState({teams});
 	}
 
 	handleChange(e) {
