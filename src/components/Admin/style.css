@@ -128,6 +128,35 @@
     font-size: 15px;
 }
 
+.admin .antcard {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.admin .antcard .icon {
+    background-position: center center;
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    margin-top: -6px;
+    margin-right: 5px;
+    top: 6px;
+    position: relative;
+}
+
+.admin .antcard .Red_Fire {
+    background-image: url('../../assets/Red_Fire25x25.png');
+}
+
+.admin .antcard .Lasius {
+	background-image: url('../../assets/Lasius25x25.png');
+}
+
+.admin .antcard .Mirmica {
+	background-image: url('../../assets/Mirmica25x25.png');
+}
+
+
 .url-modal .modal-content .modal-header, .url-modal .modal-content .modal-footer {
     border: none;
 }

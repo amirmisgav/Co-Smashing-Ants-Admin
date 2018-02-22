@@ -40,63 +40,42 @@ class Admin extends Component {
 		super(props);
 
 		this.state = {
-			teams: JSON.parse(localStorage.getItem('teams')) || [],
+			url: GameService.getServer(),
 			species: [],
+			status: '',
+			teams: sanitizeTeams(JSON.parse(localStorage.getItem('teams') || '[]')),
+			teamsPlayers: [],
 			time: 1,
 			speed: 1,
 			population: 5,
-			speciesOpen: false,
-			selectedSpecie: {},
-			name: '',
-			url: GameService.getServer() || '',
+			speciesDroppedForTeam: null,
 			isPlaying: false,
 			isPaused: false,
-			canCreated: true,
-			urlModal: false,
-			status: ''
+			canCreate: true,
+			urlModal: false
 		};
 	}
 
 	componentDidMount() {
-		if (!localStorage.getItem('serverUrl')) {
+		if (!this.state.url) {
 			this.toggleServerModal();
 			return
-		} else {
-
-			Promise.all([
-				GameService.getServer(),
-				GameService.species(),
-				this.state.isPlaying
-				? GameService.currentTeams()
-				: this.state.teams
-			])
-			.then((r) => r.map(r => r.data || r))
-			.then(([url, species, teams]) => {
-				console.log('loaded ', {teams, species});
-
-				this.setState({
-					url,
-					teams,
-					species,
-					selectedSpecie: species[0]
-				});
-			});
 		}
 
+		this.timeout = setInterval(() => { this.updateStatus() }, 1000);
+		GameService.species()
+		.then(species => console.log('species', species) || this.setState({species}));
 		this.updateStatus();
-		new window.Slider('#speed-slider', {})
-			.on('slide', i => this.setState({speed: speedArray[i]}))
-			.on('slideStart', i => this.setState({speed: speedArray[i]}))
-		new window.Slider('#time-slider', {})
-			.on('slide',  value => this.setState({time: value}))
-			.on('slideStart',  value => this.setState({time: value}))
-		new window.Slider('#population-slider', {})
-			.on('slide', value => this.setState({population: value}))
-			.on('slideStart', value => this.setState({population: value}))
+
+		bindSliders({
+			onSpeedChange: i => this.setState({speed: speedArray[i]}),
+			onTimeChange: value => this.setState({time: value}),
+			onPopulationChange: value => this.setState({population: value})
+		})
 	}
 
 	componentWillUnmount() {
-		clearTimeout(this.timeout);
+		clearInterval(this.timeout);
 	}
 
 	toggleServerModal() {
@@ -104,25 +83,39 @@ class Admin extends Component {
 	}
 
 	updateServerUrl(url) {
-		if (!url) url = this.state.url;
+		if (!url) return;
 		this.setState({url: GameService.setServer(url)});
 	}
 
 	updateStatus() {
-		GameService.status()
-			.then(({data: { state: status}}) => {
-				this.setState({
+		return GameService.status()
+		.then(({state: status}) => {
+			const canCreate = status === 'STOPPED';
+			const isPlaying = status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED';
+			const isPaused = status === 'PAUSED';
+			if (canCreate) {
+			  	this.setState({
 					status,
-					isPlaying: status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED',
-					isPaused: status === 'PAUSED',
-					canCreated: status === 'FINISHED' || status === 'STOPPED'
+					isPlaying,
+					isPaused,
+					canCreate,
+					teamsPlayers: []
 				});
-			})
-			.catch(err => {
-				this.setState({status: err.message});
-			});
+				return;
+			}
 
-		this.timeout = setTimeout(this.updateStatus.bind(this), 1000);
+			GameService.teamsPlayers()
+			.then(teamsPlayers => this.setState({
+				status,
+				isPlaying,
+				isPaused,
+				canCreate,
+				teamsPlayers
+			}));
+		})
+		.catch(err => {
+			this.setState({status: err.message});
+		});
 	}
 
 	addTeam(e) {
@@ -172,10 +165,6 @@ class Admin extends Component {
 		}
 	}
 
-	toggleSpecies() {
-		this.setState({speciesOpen: !this.state.speciesOpen});
-	}
-
 	onsSpecieSelect(specie) {
 		this.setState({selectedSpecie: specie});
 	}
@@ -184,16 +173,36 @@ class Admin extends Component {
 		GameService.create(this.state.teams, this.state.time)
 			.then(res => {
 				console.log('games created');
-				this.setState({canCreated: false});
+				this.setState({canCreate: false});
 			})
 			.catch(e => {
 				console.log('games creation failed');
-				this.setState({canCreated: true});
+				this.setState({canCreate: true});
 			});
 	}
 
 	updateSpeed(speed) {
 		GameService.speed(this.state.speed);
+	}
+
+	toggleSpeciesSelect(speciesDroppedForTeam) {
+		//are we closing, or opening droplist of another team?
+		if (this.state.speciesDroppedForTeam && speciesDroppedForTeam.id === this.state.speciesDroppedForTeam.id)
+			speciesDroppedForTeam = null;
+		this.setState({ speciesDroppedForTeam });
+	}
+
+	updateTeam(updated) {
+		const {teams} = this.state;
+		//TRICKY: Make sure no two teams can have same specie
+		const before = teams.find( old => old.id === updated.id);
+		this.setTeams(this.state.teams.map(
+			itr => itr.id === updated.id
+				? updated
+				: itr.antSpecies.id === updated.antSpecies.id
+					? {...itr, antSpecies: before.antSpecies}
+					: itr
+		));
 	}
 
 	renderDataValue(value) {
@@ -213,11 +222,11 @@ class Admin extends Component {
 								<i className={`fa fa-${this.state.isPaused ? 'repeat' : 'pause'}`} aria-hidden="true"/>
 							</Button>
 
-							<Button onClick={this.togglePlay.bind(this)} disabled={this.state.canCreated} title={`${this.state.isPlaying ? 'Stop' : 'Play'} game`}>
+							<Button onClick={this.togglePlay.bind(this)} disabled={this.state.canCreate} title={`${this.state.isPlaying ? 'Stop' : 'Play'} game`}>
 								<i className={`fa fa-${this.state.isPlaying ? 'stop' : 'play'}`} aria-hidden="true"/>
 							</Button>
 
-							<Button onClick={this.createGame.bind(this)} disabled={!this.state.canCreated} title="Save & Create game">
+							<Button onClick={this.createGame.bind(this)} disabled={!this.state.canCreate} title="Save & Create game">
 								<i className="fa fa-save" aria-hidden="true"/>
 							</Button>
 
@@ -256,7 +265,7 @@ class Admin extends Component {
 											data-slider-max="5"
 											data-slider-step="1"
 											data-slider-value={this.state.time}
-											// data-slider-enabled={!this.state.canCreated}
+											// data-slider-enabled={!this.state.canCreate}
 											/>
 									</div>
 								</FormGroup>
@@ -286,7 +295,7 @@ class Admin extends Component {
 											/>
 										</div>
 									{
-										// !this.state.canCreated && 
+										// !this.state.canCreate && 
 										<Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
 											<i className="fa fa-clock-o" aria-hidden="true"/>
 										</Button>
@@ -311,7 +320,7 @@ class Admin extends Component {
 											data-slider-max="9"
 											data-slider-step="1"
 											data-slider-value={this.state.population}
-											// data-slider-enabled={!this.state.canCreated}
+											// data-slider-enabled={!this.state.canCreate}
 											/>
 									</div>
 								</FormGroup>
@@ -321,64 +330,10 @@ class Admin extends Component {
 
 					<Row>
 						<Col sm="8" className="add-panel">
-							{!this.state.isPlaying && <Form inline onSubmit={this.addTeam.bind(this)}>
-								<FormGroup>
-									<Label for="name">Add Team Name</Label>
-									<Input type="text" name="name" id="name" placeholder="Team name" onChange={this.handleChange.bind(this)}/>
-								</FormGroup>
-
-								<FormGroup>
-									<Label for="antSpecies">Ant Species</Label>
-									<Dropdown isOpen={this.state.speciesOpen} toggle={this.toggleSpecies.bind(this)} className="selected">
-										<DropdownToggle caret>
-											{this.state.selectedSpecie.name}
-										</DropdownToggle>
-										<DropdownMenu>
-											{this.state.species.map(specie => {
-												return specie &&
-													<DropdownItem
-														key={specie.id}
-														value={specie.id}
-														onClick={() => this.onsSpecieSelect(specie)}
-													>
-														{specie.name}
-													</DropdownItem>;
-											})}
-										</DropdownMenu>
-									</Dropdown>
-								</FormGroup>
-
-								<Button type="submit"  title="Add team">
-									<i className="fa fa-plus" aria-hidden="true"/>
-								</Button>
-							</Form>}
-
-							{
-								this.state.teams.length > 0 && <Table>
-									<thead>
-									<tr>
-										<th>Team</th>
-										<th>Ant Species</th>
-										{!this.state.isPlaying && <th>Remove</th> }
-									</tr>
-									</thead>
-									<tbody>
-									{
-										this.state.teams.map((team, index) => {
-											return <tr key={index}>
-												<td>{team.name}</td>
-												<td>{team.antSpeciesId}</td>
-												{!this.state.isPlaying && <td>
-													<Button onClick={this.removeTeam.bind(this, index)}>
-														<i className="fa fa-remove" aria-hidden="true"/>
-													</Button>
-												</td>}
-											</tr>
-										})
-									}
-									</tbody>
-								</Table>
-							}
+							<NewGame state={this.state} 
+								updateTeam={this.updateTeam.bind(this)} 
+								toggleSpeciesSelect={this.toggleSpeciesSelect.bind(this)}
+							/>
 						</Col>
 					</Row>
 				</Container>
@@ -405,3 +360,104 @@ class Admin extends Component {
 }
 
 export default Admin;
+
+
+const NewGame = ({
+	state:{isPlaying, teams, speciesDroppedForTeam, species},
+	updateTeam,
+	toggleSpeciesSelect
+}) => (
+	<Table>
+		<thead>
+		<tr>
+			<th>Team</th>
+			<th>Ant Species</th>
+		</tr>
+		</thead>
+		<tbody>
+		{
+			teams.map(
+				isPlaying
+				? team => <StaticTeamRow key={team.id} team={team} />
+				: team => <EditableTeamRow key={team.id} 
+					team={team} state={{speciesDroppedForTeam, species}} 
+					updateTeam={updateTeam}
+					toggleSpeciesSelect={toggleSpeciesSelect}
+				  />
+			)
+		}
+		</tbody>
+	</Table>
+);
+
+
+const EditableTeamRow = ({
+	team,
+	state: {
+		speciesDroppedForTeam,
+		species
+	},
+	updateTeam,
+	toggleSpeciesSelect
+ }) => (
+	<tr key={team.id}>
+		<td><input onChange={(e) => updateTeam({...team, name: e.target.value})} value={team.name}/></td>
+		<td>
+			<Dropdown 
+				isOpen={speciesDroppedForTeam ? speciesDroppedForTeam.id === team.id : false}
+				toggle={() => toggleSpeciesSelect(team)}
+				className="selected">
+				<DropdownToggle caret>
+					<AntCard name={team.antSpecies.name} />
+				</DropdownToggle>
+				<DropdownMenu>
+					{species.map(specie => specie &&
+						<DropdownItem
+							key={specie.id} value={specie.id}
+							onClick={() => updateTeam({...team, antSpecies: specie})}
+						>
+							<AntCard name={specie.name} />
+						</DropdownItem>
+					)}
+				</DropdownMenu>
+			</Dropdown>
+		</td>
+	</tr>
+);
+
+const StaticTeamRow = ({
+	team:{id, name, antSpecies}
+ }) => (
+	<tr key={id}>
+		<td>{name}</td>
+		<td><AntCard name={antSpecies.name} /></td>
+	</tr>
+);
+
+const AntCard = ({name}) => (
+	<div className="antcard"><span className={`icon ${name}`}></span>{name}</div>
+);
+
+const bindSliders = ({
+	onSpeedChange,
+	onTimeChange,
+	onPopulationChange
+ }) => {
+	console.log('binding sliders');
+	slider('#speed-slider', onSpeedChange);
+	slider('#time-slider', onTimeChange);
+	slider('#population-slider', onPopulationChange);
+}
+
+const slider = (id, onChange) => new window.Slider(id, {})
+	.on('slide', onChange)
+	.on('slideStart', onChange);
+
+
+const defaultTeams =  [{"id":1,"name":"Ops","antSpecies":{"name":"Red_Fire","id":1}},{"id":2,"name":"JS","antSpecies":{"name":"Lasius","id":2}},{"id":3,"name":"Data","antSpecies":{"name":"Mirmica","id":3}}];
+const sanitizeTeams = (teams) => {
+	if (!Array.isArray(teams)) return defaultTeams;
+	return teams.filter(teamIsOk).concat(defaultTeams).slice(0,3)
+}
+
+const teamIsOk = ({id, name, antSpeciesId}) => id && name && antSpeciesId;
