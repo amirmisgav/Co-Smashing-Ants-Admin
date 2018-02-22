@@ -7,7 +7,7 @@
 <body>
     <script src="eventsource.min.js"></script>
     <script>
-        var es = new EventSource('//c2f47682.fanoutcdn.com/dev/sse/');
+        var es = new EventSource('//c2f47682.fanoutcdn.com/events/sse/');
         es.addEventListener('message', function (e) {
             console.log(e.data);
         }, false);
