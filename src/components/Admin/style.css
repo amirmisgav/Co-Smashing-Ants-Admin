@@ -156,6 +156,11 @@
 	background-image: url('../../assets/Mirmica25x25.png');
 }
 
+.dataValue {
+    color: blue;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
 
 .url-modal .modal-content .modal-header, .url-modal .modal-content .modal-footer {
     border: none;

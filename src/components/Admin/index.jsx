@@ -62,10 +62,12 @@ class Admin extends Component {
 			return
 		}
 
-		this.timeout = setInterval(() => { this.updateStatus() }, 1000);
-		GameService.species()
-		.then(species => console.log('species', species) || this.setState({species}));
-		this.updateStatus();
+		GameService
+		.species()
+		.then(species => this.setState({species}));
+
+		this.timeout = setInterval(() => { this.pollState() }, 1000);
+		this.pollState();
 
 		bindSliders({
 			onSpeedChange: i => this.setState({speed: speedArray[i]}),
@@ -87,50 +89,47 @@ class Admin extends Component {
 		this.setState({url: GameService.setServer(url)});
 	}
 
-	updateStatus() {
+	pollState() {
 		return GameService.status()
 		.then(({state: status}) => {
-			const canCreate = status === 'STOPPED';
-			const isPlaying = status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED';
-			const isPaused = status === 'PAUSED';
-			if (canCreate) {
-			  	this.setState({
-					status,
-					isPlaying,
-					isPaused,
-					canCreate,
-					teamsPlayers: []
-				});
-				return;
-			}
-
-			GameService.teamsPlayers()
-			.then(teamsPlayers => this.setState({
-				status,
-				isPlaying,
-				isPaused,
-				canCreate,
-				teamsPlayers
-			}));
+			(	status === 'STOPPED'
+				? Promise.resolve([])
+				: GameService.teamsPlayers()
+			)
+			.then(teamsPlayers => {
+				const mergeTeams = (team) => {
+					const { 
+						players = [],
+						score = 0
+					} = teamsPlayers.find(({name: tp}) => team.name === tp) || {}
+					return { 
+						...team, 
+						players,
+						score
+				   }
+				}
+				this.acceptState({
+					 status, 
+					 teams: this.state.teams.map( team => mergeTeams(team))
+				})
+			})
 		})
 		.catch(err => {
 			this.setState({status: err.message});
 		});
 	}
 
-	addTeam(e) {
-		e.preventDefault();
-
-		this.setTeams([...this.state.teams, {
-			antSpeciesId: this.state.selectedSpecie.id,
-			name: this.state.name
-		}])
-	}
-
-	removeTeam(index) {
-		const teams = this.state.teams;
-		teams.splice(index, 1);
-		this.setTeams(teams);
+	acceptState({status, teams}) {
+		const canCreate = status === 'STOPPED';
+		const isPlaying = status === 'STARTED' || status === 'PAUSED' || status === 'RESUMED';
+		const isPaused = status === 'PAUSED';
+		this.setState({
+			status,
+			isPlaying,
+			isPaused,
+			canCreate,
+			teams
+		});
 	}
 
 	setTeams(teams) {
@@ -205,41 +204,45 @@ class Admin extends Component {
 		));
 	}
 
-	renderDataValue(value) {
-		return <span style={{color: 'blue', marginLeft: '0.5rem', marginRight: '0.5rem'}}>{value}</span>
-	}
-
 	render() {
+		const {
+			url,
+			isPlaying, isPaused, canCreate,
+			status,
+			time,
+			speed,
+			population,
+			teams
+		} = this.state;
+		
 		// console.log(this.state)
 		return (
 			<div className="board admin">
 				<Container>
 					<Label>Admin</Label>
 
-					<Row>
+					<Row alt='game controls'>
 						<div className="controls-panel">
-							<Button onClick={this.togglePause.bind(this)} disabled={!this.state.isPlaying} title={`${this.state.isPaused ? 'Resume' : 'Pause'} game`}>
-								<i className={`fa fa-${this.state.isPaused ? 'repeat' : 'pause'}`} aria-hidden="true"/>
+							<Button onClick={this.togglePause.bind(this)} disabled={!isPlaying} title={`${isPaused ? 'Resume' : 'Pause'} game`}>
+								<i className={`fa fa-${isPaused ? 'repeat' : 'pause'}`} aria-hidden="true"/>
 							</Button>
-
-							<Button onClick={this.togglePlay.bind(this)} disabled={this.state.canCreate} title={`${this.state.isPlaying ? 'Stop' : 'Play'} game`}>
-								<i className={`fa fa-${this.state.isPlaying ? 'stop' : 'play'}`} aria-hidden="true"/>
+							<Button onClick={this.togglePlay.bind(this)} disabled={canCreate} title={`${isPlaying ? 'Stop' : 'Play'} game`}>
+								<i className={`fa fa-${isPlaying ? 'stop' : 'play'}`} aria-hidden="true"/>
 							</Button>
-
-							<Button onClick={this.createGame.bind(this)} disabled={!this.state.canCreate} title="Save & Create game">
+							<Button onClick={this.createGame.bind(this)} disabled={!canCreate} title="Save & Create game">
 								<i className="fa fa-save" aria-hidden="true"/>
 							</Button>
 
-							<Label className="game-status">Status: <span>{this.state.status}</span></Label>
+							<Label className="game-status">Status: <span>{status}</span></Label>
 						</div>
 					</Row>
 
-					<Row>
+					<Row alt='server url'>
 						<Col sm="8" className="server-url">
 							<Form inline>
 								<FormGroup>
 									<Label for="url">Server URL</Label>
-									<Input type="text" name="url" id="url" value={this.state.url} onChange={this.handleChange.bind(this)}/>
+									<Input type="text" name="url" id="url" value={url} onChange={this.handleChange.bind(this)}/>
 									<Button onClick={this.updateServerUrl.bind(this)} title="Updated server url">
 										<i className="fa fa-save" aria-hidden="true"/>
 									</Button>
@@ -251,11 +254,11 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					<Row>
+					<Row alt='time slider'>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label style={styles.label} for="time">Game-Time {this.renderDataValue(this.state.time)} Minutes</Label>
+									<Label style={styles.label} for="time">Game-Time <DataValue value={time} />} Minutes</Label>
 									<div style={{marginLeft: '1.5rem'}}>
 										<Input
 											type="text"
@@ -264,7 +267,7 @@ class Admin extends Component {
 											data-slider-min="1"
 											data-slider-max="5"
 											data-slider-step="1"
-											data-slider-value={this.state.time}
+											data-slider-value={time}
 											// data-slider-enabled={!this.state.canCreate}
 											/>
 									</div>
@@ -273,11 +276,11 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					<Row>
+					<Row alt='speed slider'>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label style={styles.label} for="speed-slider">Game speed X {this.renderDataValue(this.state.speed)}</Label>
+									<Label style={styles.label} for="speed-slider">Game speed X <DataValue value={speed} /></Label>
 									<div style={{marginLeft: '1.5rem', marginRight: '1rem'}}>
 										<Input
 											type="text"
@@ -305,11 +308,11 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					<Row>
+					<Row alt='population slider'>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label style={styles.label} for="population">Population - {this.renderDataValue(this.state.population)}</Label>
+									<Label style={styles.label} for="population">Population - <DataValue value={population} /></Label>
 									{/* <Input type="number" min="0" max="10" name="population" id="population" className="population" defaultValue={this.state.population} onChange={this.handleChange.bind(this)}/> */}
 									<div style={{marginLeft: '1.5rem'}}>
 										<Input
@@ -328,12 +331,15 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					<Row>
+					<Row alt='game teams/game setup'>
 						<Col sm="8" className="add-panel">
-							<NewGame state={this.state} 
-								updateTeam={this.updateTeam.bind(this)} 
-								toggleSpeciesSelect={this.toggleSpeciesSelect.bind(this)}
-							/>
+							{ canCreate
+							  ?	<NewGame state={this.state} 
+									updateTeam={this.updateTeam.bind(this)} 
+									toggleSpeciesSelect={this.toggleSpeciesSelect.bind(this)}
+								/>
+							  : <RunningGame teams={teams} isPlaying={isPlaying}/>
+							}
 						</Col>
 					</Row>
 				</Container>
@@ -360,6 +366,34 @@ class Admin extends Component {
 }
 
 export default Admin;
+
+const RunningGame = ({
+	teams, isPlaying
+ }) => (
+    <Table>
+		<thead>
+			<tr>{ teams.map(({id, name:team, antSpecies:{name:ant}, score = 0}) => 
+				<th key={id}>
+					{team}<br />
+					<AntCard name={ant}/> 
+					{isPlaying ? <b className="score"><br/>score: <DataValue value={score} /></b> : ''} 
+				</th>)
+			}</tr>
+		</thead>
+		<tbody>
+			<tr>{ teams.map(({id, players = []}) => 
+				<td key={id}>
+					{ players.length 
+					  ? <ol>
+							{ players.map( ({id, name}) => <li key={id}>{name}</li>) }
+						</ol>
+					  : <i>emtpy</i>
+					}
+				</td>
+			)}</tr>
+		</tbody>
+	</Table>
+ );
 
 
 const NewGame = ({
@@ -437,6 +471,11 @@ const StaticTeamRow = ({
 const AntCard = ({name}) => (
 	<div className="antcard"><span className={`icon ${name}`}></span>{name}</div>
 );
+
+const DataValue = ({value}) => (
+	<span className="dataValue">{value}</span>
+);
+
 
 const bindSliders = ({
 	onSpeedChange,
