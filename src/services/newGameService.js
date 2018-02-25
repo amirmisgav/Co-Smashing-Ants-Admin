@@ -4,7 +4,7 @@ import GameService from './gameService'
 const init = () => { 
   // return axios.get('https://fuze.tikal.io/hitTrials/games/latest')
   return GameService.status()
-    .then(res => res.data.id)
+    .then(res => res.id)
     .then(gameId => ({
       getScores: () => axios.get(`https://fuze.tikal.io/scores/games/${gameId}/players`),
       getTeams: () => axios.get(`https://fuze.tikal.io/scores/games/${gameId}/teams`)
