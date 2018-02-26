@@ -81,11 +81,12 @@ class TeamBoardTime extends Component {
 
 	addInterval() {
 		if (!this.service) return this.getService()
-		const interval = () =>
-			this.props.pause
-			? this.removeInterval()
-			: this.requestData()
-		this.timeout = setInterval(interval, 1000)
+		this.timeout = setInterval(
+			() =>  this.props.pause
+				? this.removeInterval()
+				: this.requestData(),
+			1000
+		);
 	}
 
 	render() {
