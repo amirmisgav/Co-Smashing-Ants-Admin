@@ -47,7 +47,8 @@ class Admin extends Component {
 			teamsPlayers: [],
 			time: 1,
 			speed: 1,
-			population: 5,
+			antsPerTeam: 5,
+			maxPlayers: 10,
 			speciesDroppedForTeam: null,
 			isPlaying: false,
 			isPaused: false,
@@ -71,8 +72,9 @@ class Admin extends Component {
 
 		bindSliders({
 			onSpeedChange: i => this.setState({speed: speedArray[i]}),
-			onTimeChange: value => this.setState({time: value}),
-			onPopulationChange: value => this.setState({population: value})
+			onTimeChange: time => this.setState({time}),
+			onAntsPerTeamChange: antsPerTeam => this.setState({antsPerTeam}),
+			onMaxPlayersChange: maxPlayers => this.setState({maxPlayers})
 		})
 	}
 
@@ -159,7 +161,11 @@ class Admin extends Component {
 		if (this.state.isPlaying) {
 			GameService.stop();
 		} else {
-			GameService.start(this.state.speed, this.state.population);
+			GameService.start(
+				this.state.speed,
+				this.state.antsPerTeam,
+				this.state.maxPlayers
+			);
 			// browserHistory.push('/dashboard')
 		}
 	}
@@ -211,7 +217,8 @@ class Admin extends Component {
 			status,
 			time,
 			speed,
-			population,
+			antsPerTeam,
+			maxPlayers,
 			teams
 		} = this.state;
 		
@@ -308,21 +315,42 @@ class Admin extends Component {
 						</Col>
 					</Row>
 
-					<Row alt='population slider'>
+					<Row alt='antsPerTeam slider'>
 						<Col sm="8" className="game-params">
 							<Form inline>
 								<FormGroup>
-									<Label style={styles.label} for="population">Population - <DataValue value={population} /></Label>
-									{/* <Input type="number" min="0" max="10" name="population" id="population" className="population" defaultValue={this.state.population} onChange={this.handleChange.bind(this)}/> */}
+									<Label style={styles.label} for="antsPerTeam">Ants per Team<DataValue value={antsPerTeam} /></Label>
 									<div style={{marginLeft: '1.5rem'}}>
 										<Input
 											type="text"
-											id="population-slider"
+											id="antsPerTeam-slider"
 											data-slider-id="speed-slider-inner"
 											data-slider-min="1"
 											data-slider-max="9"
 											data-slider-step="1"
-											data-slider-value={this.state.population}
+											data-slider-value={this.state.antsPerTeam}
+											// data-slider-enabled={!this.state.canCreate}
+											/>
+									</div>
+								</FormGroup>
+							</Form>
+						</Col>
+					</Row>
+
+					<Row alt='maxPlayers slider'>
+						<Col sm="8" className="game-params">
+							<Form inline>
+								<FormGroup>
+									<Label style={styles.label} for="maxPlayers"><nobr>Max Players in Team</nobr> <DataValue value={maxPlayers} /></Label>
+									<div style={{marginLeft: '1.5rem'}}>
+										<Input
+											type="text"
+											id="maxPlayers-slider"
+											data-slider-id="speed-slider-inner"
+											data-slider-min="1"
+											data-slider-max="30"
+											data-slider-step="1"
+											data-slider-value={this.state.maxPlayers}
 											// data-slider-enabled={!this.state.canCreate}
 											/>
 									</div>
@@ -480,12 +508,14 @@ const DataValue = ({value}) => (
 const bindSliders = ({
 	onSpeedChange,
 	onTimeChange,
-	onPopulationChange
+	onAntsPerTeamChange,
+	onMaxPlayersChange
  }) => {
 	console.log('binding sliders');
 	slider('#speed-slider', onSpeedChange);
 	slider('#time-slider', onTimeChange);
-	slider('#population-slider', onPopulationChange);
+	slider('#antsPerTeam-slider', onAntsPerTeamChange);
+	slider('#maxPlayers-slider', onMaxPlayersChange);
 }
 
 const slider = (id, onChange) => new window.Slider(id, {})

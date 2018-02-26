@@ -41,8 +41,8 @@ class GameService {
 		return axios.post(this.serverUrl + '/games?gameTime=' + time, teams);
 	}
 
-	start(speed, population) {
-		return axios.put(this.serverUrl + '/games/start?factor=' + speed + '&population=' + population);
+	start(speed, ants, players) {
+		return axios.put(`${this.serverUrl}/games/start?factor=${speed}&population=${ants}&maxNumOfPlayers=${players}`);
 	}
 
 	stop() {
