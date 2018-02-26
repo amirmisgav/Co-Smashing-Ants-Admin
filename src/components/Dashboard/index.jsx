@@ -25,13 +25,13 @@ class Dashboard extends Component {
 
 	updateStatus() {
 		GameService.status()
-			.then(res => {
+			.then(data => {
+				const state = data.state;
 				this.setState({
-					isPlaying: res.data.state === 'STARTED' || res.data.state === 'PAUSED' || res.data.state === 'RESUMED',
-					isPaused: res.data.state === 'PAUSED',
-					canCreated: res.data.state === 'FINISHED' || res.data.state === 'STOPPED',
-					// status: res.data.state
-					data: res.data
+					isPlaying: state === 'STARTED' || state === 'PAUSED' || state === 'RESUMED',
+					isPaused: state === 'PAUSED',
+					canCreated: state === 'FINISHED' || state === 'STOPPED',
+					data
 				});
 
 			})
