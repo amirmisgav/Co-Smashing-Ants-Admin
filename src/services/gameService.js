@@ -27,7 +27,7 @@ class GameService {
 			{"antSpecies": {"id": 3}, "name":"teamC"}
 		]
 	*/
-	create(data, time) {
+	create(data, time, players) {
 		const teams = data.map(
 			({
 				name, 
@@ -38,7 +38,7 @@ class GameService {
 				antSpecies
 			})
 		);
-		return axios.post(this.serverUrl + '/games?gameTime=' + time, teams);
+		return axios.post(`${this.serverUrl}/games?gameTime=${time}&maxNumOfPlayers=${players}`, teams);
 	}
 
 	start(speed, ants, players) {

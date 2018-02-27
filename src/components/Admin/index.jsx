@@ -161,10 +161,11 @@ class Admin extends Component {
 		if (this.state.isPlaying) {
 			GameService.stop();
 		} else {
+			const {speed, antsPerTeam, maxPlayers} = this.state;
 			GameService.start(
-				this.state.speed,
-				this.state.antsPerTeam,
-				this.state.maxPlayers
+				speed,
+				antsPerTeam,
+				maxPlayers
 			);
 			// browserHistory.push('/dashboard')
 		}
@@ -175,7 +176,8 @@ class Admin extends Component {
 	}
 
 	createGame() {
-		GameService.create(this.state.teams, this.state.time)
+		const {teams, time, maxPlayers} = this.state;
+		GameService.create(teams, time, maxPlayers)
 			.then(res => {
 				console.log('games created');
 				this.setState({canCreate: false});
