@@ -88,7 +88,7 @@ class Admin extends Component {
 
 	updateServerUrl(url) {
 		if (!url) return;
-		this.setState({url: GameService.setServer(url)});
+		GameService.setServer(url);
 	}
 
 	pollState() {
@@ -252,10 +252,10 @@ class Admin extends Component {
 								<FormGroup>
 									<Label for="url">Server URL</Label>
 									<Input type="text" name="url" id="url" value={url} onChange={this.handleChange.bind(this)}/>
-									<Button onClick={this.updateServerUrl.bind(this)} title="Updated server url">
+									<Button onClick={() => this.updateServerUrl(this.state.url)} title="Updated server url">
 										<i className="fa fa-save" aria-hidden="true"/>
 									</Button>
-									<Button onClick={this.updateServerUrl.bind(this, '')} title="Delete server url">
+									<Button onClick={() => this.updateServerUrl('')} title="Delete server url">
 										<i className="fa fa-remove" aria-hidden="true"/>
 									</Button>
 								</FormGroup>
@@ -385,7 +385,7 @@ class Admin extends Component {
 						</Form>
 					</ModalBody>
 					<ModalFooter>
-						<Button onClick={() => { this.updateServerUrl(); this.toggleServerModal(); }}>
+						<Button onClick={() => { this.updateServerUrl(this.state.url || ''); this.toggleServerModal(); }}>
 							<i className="fa fa-save" aria-hidden="true"/>
 						</Button>
 					</ModalFooter>
@@ -513,7 +513,6 @@ const bindSliders = ({
 	onAntsPerTeamChange,
 	onMaxPlayersChange
  }) => {
-	console.log('binding sliders');
 	slider('#speed-slider', onSpeedChange);
 	slider('#time-slider', onTimeChange);
 	slider('#antsPerTeam-slider', onAntsPerTeamChange);

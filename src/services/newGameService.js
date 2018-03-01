@@ -1,8 +1,7 @@
 import axios from 'axios'
 import GameService from './gameService'
 
-const init = () => { 
-  // return axios.get('https://fuze.tikal.io/hitTrials/games/latest')
+const init = () => {
   return GameService.status()
     .then(res => res.id)
     .then(gameId => ({

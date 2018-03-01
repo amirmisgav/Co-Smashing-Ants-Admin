@@ -3,9 +3,7 @@ import {
 	Container,
 	Label
 } from 'reactstrap';
-//import { browserHistory } from 'react-router';
 import { ComposedChart, /*LineChart, */ CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
-// import GameService from '../../services/gameService';
 import NewGameService from '../../services/newGameService';
 
 import './style.css';
@@ -42,10 +40,10 @@ class TeamBoardTime extends Component {
 	requestData = () => this.service.getTeams().then(res => {
 		const resData = res.data.sort((a,b) => a.id - b.id) || []
 		const teamData = resData
-		.reduce((acc, curr, index) => {
-			acc[`team_${index}`] = curr.score
-			return acc
-		}, {})
+			.reduce((acc, curr, index) => {
+				acc[`team_${index}`] = curr.score
+				return acc
+			}, {})
 		const data = this.state.data
 		data.shift()
 		data.push(Object.assign({
@@ -54,7 +52,7 @@ class TeamBoardTime extends Component {
 		const teamsNames = resData
 			.map(item => ({
 				color: colors[item.antSpeciesName],
-				name: item.antSpeciesName
+				name:  item.antSpeciesName
 			}))
 			.concat([{color: 'white', name: ''}, {color: 'white', name: ''}, {color: 'white', name: ''}])
 			.splice(0,3)
@@ -92,6 +90,7 @@ class TeamBoardTime extends Component {
 	render() {
 		const {teamsNames, data} = this.state
 		const {xSize = 120, minimal = false, pause = false} = this.props
+		const domain = [ data[0].time,  Math.max(120, data[119].time || 0) ]
 		if (!this.timeout && !pause) this.addInterval()
 		// console.log(data)
 		// console.log(teamsNames)
@@ -103,7 +102,7 @@ class TeamBoardTime extends Component {
 					<ComposedChart width={800} height={500} data={data}
 						margin={{ top: 10, right: 0, left: 20, bottom: 10 }}>
 						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis dataKey="time" type="number" tickCount={10} domain={[0, xSize]} />
+						<XAxis dataKey="time" type="number" tickCount={10} domain={domain} />
 						<YAxis />
 						<Tooltip />
 						<Legend />

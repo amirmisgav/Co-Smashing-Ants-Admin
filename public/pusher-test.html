@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <head>
     <title>Pusher Test</title>
+    <style>PRE { background-color: lightgray; margin-left: 20px }</style>
     <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
     <script>
 
     // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
+    Pusher.logToConsole = false;
 
-    var pusher = new Pusher('ee30a7dbb762fb045133', {
-      encrypted: true
-    });
+    const pusher = new Pusher('ee30a7dbb762fb045133', { encrypted: true });
+    const channel = pusher.subscribe('scores', (...args) => console.log('subscribed to scores', args));
 
-    var channel = pusher.subscribe('scores');
+    channel.bind('pusher:subscription_succeeded', () => {
+      channel.bind('playerScore', (data) =>
+        document.body.innerHTML += "<h4>playerScore event</h4><pre>" + JSON.stringify(data, null, 2) + "</pre>"
+      );
 
-    channel.bind('playerScore', function(data) {
-      document.body.innerHTML += "<p>playerScore event : "+data.message+"</p>";
-    });
-
-    channel.bind('teamScore', function(data) {
-      document.body.innerHTML += "<p>teamScore event : "+data.message+"</p>";
-    });
+      channel.bind('teamScore', (data) =>
+        document.body.innerHTML += "teamScore event : <pre>" + JSON.stringify(data, null, 2) + "</pre>"
+      );
+    })
+    
   </script>
 </head>

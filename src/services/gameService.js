@@ -5,7 +5,6 @@ class GameService {
 
 	setServer(url = 'http://ants.fuze.tikal.io:8080') {
 		url = url.replace(/\/$/, '');
-		console.log('setServer', url)
 		this.serverUrl = url;
 		localStorage.setItem('serverUrl', this.serverUrl);
 		return url
