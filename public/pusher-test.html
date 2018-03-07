@@ -13,7 +13,7 @@
 
     channel.bind('pusher:subscription_succeeded', () => {
       channel.bind('score', (data) =>
-        document.body.innerHTML += "<h4>playerScore event</h4><pre>" + JSON.stringify(data, null, 2) + "</pre>"
+        document.body.innerHTML += "<h4>score event</h4><pre>" + JSON.stringify(data, null, 2) + "</pre>"
       );
     })
     
