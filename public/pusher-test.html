@@ -12,12 +12,8 @@
     const channel = pusher.subscribe('scores', (...args) => console.log('subscribed to scores', args));
 
     channel.bind('pusher:subscription_succeeded', () => {
-      channel.bind('playerScore', (data) =>
+      channel.bind('score', (data) =>
         document.body.innerHTML += "<h4>playerScore event</h4><pre>" + JSON.stringify(data, null, 2) + "</pre>"
-      );
-
-      channel.bind('teamScore', (data) =>
-        document.body.innerHTML += "teamScore event : <pre>" + JSON.stringify(data, null, 2) + "</pre>"
       );
     })
     
