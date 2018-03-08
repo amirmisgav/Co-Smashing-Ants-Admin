@@ -5,10 +5,9 @@
     <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
     <script>
 
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = false;
 
     const pusher = new Pusher('ee30a7dbb762fb045133', { encrypted: true });
+
     const channel = pusher.subscribe('scores', (...args) => console.log('subscribed to scores', args));
 
     channel.bind('pusher:subscription_succeeded', () => {
@@ -19,3 +18,5 @@
     
   </script>
 </head>
+
+
