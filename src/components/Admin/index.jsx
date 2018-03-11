@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Slider from 'bootstrap-slider';
 import * as Promise from 'bluebird';
 import {
 	Container,
@@ -21,6 +22,8 @@ import {
 } from 'reactstrap';
 import GameService from '../../services/gameService';
 //import {browserHistory} from 'react-router'
+
+import SliderCtrl from '../Slider';
 
 import './style.css';
 
@@ -45,7 +48,7 @@ class Admin extends Component {
 			status: '',
 			teams: sanitizeTeams(JSON.parse(localStorage.getItem('teams') || '[]')),
 			teamsPlayers: [],
-			time: 1,
+			time: 2,
 			speed: 1,
 			antsPerTeam: 5,
 			maxPlayers: 10,
@@ -69,13 +72,6 @@ class Admin extends Component {
 
 		this.timeout = setInterval(() => { this.pollState() }, 1000);
 		this.pollState();
-
-		bindSliders({
-			onSpeedChange: i => this.setState({speed: speedArray[i]}),
-			onTimeChange: time => this.setState({time}),
-			onAntsPerTeamChange: antsPerTeam => this.setState({antsPerTeam}),
-			onMaxPlayersChange: maxPlayers => this.setState({maxPlayers})
-		})
 	}
 
 	componentWillUnmount() {
@@ -265,99 +261,53 @@ class Admin extends Component {
 
 					<Row alt='time slider'>
 						<Col sm="8" className="game-params">
-							<Form inline>
-								<FormGroup>
-									<Label style={styles.label} for="time">Game-Time <DataValue value={time} /> Minutes</Label>
-									<div style={{marginLeft: '1.5rem'}}>
-										<Input
-											type="text"
-											id="time-slider"
-											data-slider-id="speed-slider-inner"
-											data-slider-min="1"
-											data-slider-max="5"
-											data-slider-step="1"
-											data-slider-value={time}
-											// data-slider-enabled={!this.state.canCreate}
-											/>
-									</div>
-								</FormGroup>
-							</Form>
+							<SliderCtrl 
+								id="time-slider"
+								label="Game-Time" 
+								min="1" max="5" step="1"
+								current={time}
+								unit="Minutes"
+								onChange={time => this.setState({time})}
+							/>
 						</Col>
 					</Row>
 
 					<Row alt='speed slider'>
 						<Col sm="8" className="game-params">
-							<Form inline>
-								<FormGroup>
-									<Label style={styles.label} for="speed-slider">Game speed X <DataValue value={speed} /></Label>
-									<div style={{marginLeft: '1.5rem', marginRight: '1rem'}}>
-										<Input
-											type="text"
-											id="speed-slider"
-											data-slider-id="speed-slider-inner"
-											// data-provide="slider"
-											// data-slider-ticks="[1, 2, 3, 4, 5]"
-											// data-slider-ticks-labels='["0.2X", "0.5X", "1", "2X", "5X"]'
-											// ticks_positions="[1, 2, 3, 4, 5]"
-											data-slider-min="0"
-											data-slider-max={speedArray.length - 1}
-											data-slider-step="1"
-											data-slider-value={speedArray.indexOf(this.state.speed)}
-											// data-slider-handle="triangle"
-											/>
-										</div>
-									{
-										// !this.state.canCreate && 
-										<Button onClick={this.updateSpeed.bind(this)} title="Updated game speed">
-											<i className="fa fa-clock-o" aria-hidden="true"/>
-										</Button>
-									}
-								</FormGroup>
-							</Form>
+							<SliderCtrl 
+								id="speed-slider"
+								label="Game speed X" 
+								min="0" max={speedArray.length - 1} step="1"
+								current={speedArray.indexOf(speed)}
+								unit=""
+								onChange={speed => this.setState({speed})}
+							/>
 						</Col>
 					</Row>
 
 					<Row alt='antsPerTeam slider'>
 						<Col sm="8" className="game-params">
-							<Form inline>
-								<FormGroup>
-									<Label style={styles.label} for="antsPerTeam">Ants per Team<DataValue value={antsPerTeam} /></Label>
-									<div style={{marginLeft: '1.5rem'}}>
-										<Input
-											type="text"
-											id="antsPerTeam-slider"
-											data-slider-id="speed-slider-inner"
-											data-slider-min="1"
-											data-slider-max="9"
-											data-slider-step="1"
-											data-slider-value={this.state.antsPerTeam}
-											// data-slider-enabled={!this.state.canCreate}
-											/>
-									</div>
-								</FormGroup>
-							</Form>
+							<SliderCtrl 
+								id="antsPerTeam-slider"
+								label="Ants per Team" 
+								min="1" max="9" step="1"
+								current={antsPerTeam}
+								unit=""
+								onChange={antsPerTeam => this.setState({antsPerTeam})}
+							/>
 						</Col>
 					</Row>
 
 					<Row alt='maxPlayers slider'>
 						<Col sm="8" className="game-params">
-							<Form inline>
-								<FormGroup>
-									<Label style={styles.label} for="maxPlayers"><nobr>Max Players in Team</nobr> <DataValue value={maxPlayers} /></Label>
-									<div style={{marginLeft: '1.5rem'}}>
-										<Input
-											type="text"
-											id="maxPlayers-slider"
-											data-slider-id="speed-slider-inner"
-											data-slider-min="1"
-											data-slider-max="30"
-											data-slider-step="1"
-											data-slider-value={this.state.maxPlayers}
-											// data-slider-enabled={!this.state.canCreate}
-											/>
-									</div>
-								</FormGroup>
-							</Form>
+							<SliderCtrl 
+								id="maxPlayers-slider"
+								label="Max Players in Team" 
+								min="1" max="30" step="1"
+								current={maxPlayers}
+								unit=""
+								onChange={maxPlayers => this.setState({maxPlayers})}
+							/>
 						</Col>
 					</Row>
 
@@ -505,23 +455,6 @@ const AntCard = ({name}) => (
 const DataValue = ({value}) => (
 	<span className="dataValue">{value}</span>
 );
-
-
-const bindSliders = ({
-	onSpeedChange,
-	onTimeChange,
-	onAntsPerTeamChange,
-	onMaxPlayersChange
- }) => {
-	slider('#speed-slider', onSpeedChange);
-	slider('#time-slider', onTimeChange);
-	slider('#antsPerTeam-slider', onAntsPerTeamChange);
-	slider('#maxPlayers-slider', onMaxPlayersChange);
-}
-
-const slider = (id, onChange) => new window.Slider(id, {})
-	.on('slide', onChange)
-	.on('slideStart', onChange);
 
 
 const defaultTeams =  [{"id":1,"name":"Ops","antSpecies":{"name":"Red_Fire","id":1}},{"id":2,"name":"JS","antSpecies":{"name":"Lasius","id":2}},{"id":3,"name":"Data","antSpecies":{"name":"Mirmica","id":3}}];
