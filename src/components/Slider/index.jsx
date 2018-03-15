@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
-import Slider from 'bootstrap-slider';
+import BstSlider from 'bootstrap-slider';
 import 'bootstrap-slider/dist/css/bootstrap-slider.css';
 
 import {
     Form, FormGroup, Label, Input
 } from 'reactstrap';
 
-export default class SliderCtrl extends Component {
+export default class Slider extends Component {
     componentDidMount() {
         const {onChange, id} = this.props;
 
-        new Slider('#' + id, {})
+        new BstSlider('#' + id, {})
         .on('slide', onChange)
         .on('slideStart', onChange);
     }
@@ -18,14 +18,15 @@ export default class SliderCtrl extends Component {
     render() { 
         const {
             id, label, 
-            min, max, step, current, unit
+            min, max, step, current, unit,
+            displayValue = () => current
         } = this.props;
 
         return (
             <Form inline>
                 <FormGroup>
                     <Label style={{width: '13rem'}} for={id}>
-                        {label} <span className="dataValue">{current}</span> {unit}
+                        {label} <span className="dataValue">{displayValue()}</span> {unit}
                     </Label>
                     <div style={{marginLeft: '1.5rem'}}>
                         <Input

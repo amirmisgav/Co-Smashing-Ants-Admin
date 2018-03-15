@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Slider from 'bootstrap-slider';
 import * as Promise from 'bluebird';
 import {
 	Container,
@@ -23,7 +22,7 @@ import {
 import GameService from '../../services/gameService';
 //import {browserHistory} from 'react-router'
 
-import SliderCtrl from '../Slider';
+import Slider from '../Slider';
 
 import './style.css';
 
@@ -261,7 +260,7 @@ class Admin extends Component {
 
 					<Row alt='time slider'>
 						<Col sm="8" className="game-params">
-							<SliderCtrl 
+							<Slider 
 								id="time-slider"
 								label="Game-Time" 
 								min="1" max="5" step="1"
@@ -274,20 +273,21 @@ class Admin extends Component {
 
 					<Row alt='speed slider'>
 						<Col sm="8" className="game-params">
-							<SliderCtrl 
+							<Slider 
 								id="speed-slider"
 								label="Game speed X" 
 								min="0" max={speedArray.length - 1} step="1"
 								current={speedArray.indexOf(speed)}
 								unit=""
-								onChange={speed => this.setState({speed})}
+								displayValue={() => speed}
+								onChange={ix => this.setState({speed: speedArray[ix]})}
 							/>
 						</Col>
 					</Row>
 
 					<Row alt='antsPerTeam slider'>
 						<Col sm="8" className="game-params">
-							<SliderCtrl 
+							<Slider 
 								id="antsPerTeam-slider"
 								label="Ants per Team" 
 								min="1" max="9" step="1"
@@ -300,7 +300,7 @@ class Admin extends Component {
 
 					<Row alt='maxPlayers slider'>
 						<Col sm="8" className="game-params">
-							<SliderCtrl 
+							<Slider 
 								id="maxPlayers-slider"
 								label="Max Players in Team" 
 								min="1" max="30" step="1"
