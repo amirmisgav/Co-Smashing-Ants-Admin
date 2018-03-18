@@ -50,7 +50,7 @@ class Admin extends Component {
 			time: 1,
 			speed: 2,
 			antsPerTeam: 5,
-			maxPlayers: 5,
+			maxPlayers: 3,
 			speciesDroppedForTeam: null,
 			isPlaying: false,
 			isPaused: false,
