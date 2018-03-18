@@ -457,7 +457,7 @@ const DataValue = ({value}) => (
 );
 
 
-const defaultTeams =  [{"id":1,"name":"Ops","antSpecies":{"name":"Red_Fire","id":1}},{"id":2,"name":"JS","antSpecies":{"name":"Lasius","id":2}},{"id":3,"name":"Data","antSpecies":{"name":"Mirmica","id":3}}];
+const defaultTeams =  [{"id":1,"name":"DevOps","antSpecies":{"name":"Red_Fire","id":1}},{"id":2,"name":"Front-end","antSpecies":{"name":"Lasius","id":2}},{"id":3,"name":"Back-end","antSpecies":{"name":"Mirmica","id":3}}];
 const sanitizeTeams = (teams) => {
 	if (!Array.isArray(teams)) return defaultTeams;
 	return teams.filter(teamIsOk).concat(defaultTeams).slice(0,3)
